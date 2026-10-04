@@ -60,6 +60,15 @@ from .miot.const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+# loock.lock.t1 reports normal door closure through exception-occurred.
+# Keep unknown conditions as the original event instead of discarding them.
+_LOOCK_DOOR_EVENT_TYPES = {
+    '1': '关门',
+    '2': '开门超时',
+    '4': '门被破坏',
+    '5': '门卡住',
+}
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -87,10 +96,33 @@ class Event(MIoTEventEntity, EventEntity):
         super().__init__(miot_device=miot_device, spec=spec)
         # Set device_class
         self._attr_device_class = spec.device_class
+        self._door_condition_argument: str | None = None
+        if (
+            miot_device.model == 'loock.lock.t1'
+            and spec.service.iid == 5
+            and spec.service.name == 'door'
+            and spec.iid == 1
+            and spec.name == 'exception-occurred'
+        ):
+            self._door_condition_argument = next(
+                (prop.description_trans for prop in spec.argument
+                 if prop.iid == 2 and prop.name == 'abnormal-condition'),
+                None)
+            if self._door_condition_argument is not None:
+                self._attr_event_types = list(dict.fromkeys(
+                    [*self._attr_event_types,
+                     *_LOOCK_DOOR_EVENT_TYPES.values()]))
+                self._attr_name = '门状态事件'
 
     def on_event_occurred(
         self, name: str, arguments: dict[str, Any] | None = None
     ) -> None:
         """An event is occurred."""
+        if self._door_condition_argument is not None and arguments:
+            condition = arguments.get(self._door_condition_argument)
+            if isinstance(condition, (int, str)) and not isinstance(
+                condition, bool
+            ):
+                name = _LOOCK_DOOR_EVENT_TYPES.get(str(condition), name)
         _LOGGER.debug('%s, attributes: %s', name, str(arguments))
         self._trigger_event(event_type=name, event_attributes=arguments)

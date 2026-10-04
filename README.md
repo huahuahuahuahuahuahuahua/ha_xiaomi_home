@@ -1,5 +1,9 @@
 # Xiaomi Home Integration for Home Assistant
 
+> This fork includes a targeted `loock.lock.t1` door-event mapping patch.
+> Install and update from `huahuahuahuahuahuahuahua/ha_xiaomi_home` in HACS.
+> See [fork maintenance and event mappings](doc/FORK_MAINTENANCE.md).
+
 [English](./README.md) | [简体中文](./doc/README_zh.md)
 
 Xiaomi Home Integration is an integrated component of Home Assistant supported by Xiaomi official. It allows you to use Xiaomi IoT smart devices in Home Assistant.
