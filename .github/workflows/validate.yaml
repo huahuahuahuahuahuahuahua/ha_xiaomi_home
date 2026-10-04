@@ -29,7 +29,8 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
-          ignore: license
+          # Personal custom repository; not applying for the HACS default list.
+          ignore: license issues topics
 
   validate-lint:
     runs-on: ubuntu-latest

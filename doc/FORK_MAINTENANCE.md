@@ -1,6 +1,9 @@
 # 门锁事件补丁与更新方式
 
 本 fork 基于上游 `v0.5.0`，首个补丁版本为 `v0.5.0+loock.1`。
+`v0.5.0+loock.2` 修正 fork 的发布工作流权限，并移除 manifest 中
+重复声明的 Home Assistant 核心依赖 `cryptography`；事件映射逻辑不变。
+HACS 验证保留集成检查，跳过默认商店收录所需的 Issues、topics 和 license 检查。
 
 ## 事件映射
 
